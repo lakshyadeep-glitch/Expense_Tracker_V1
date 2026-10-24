@@ -81,10 +81,4 @@ This project demonstrates the use of:
 * File handling
 * Basic data management
 
- _        _    _   _  ____  _  _  __   __   _
-| |      / \  | | | |/ ___|| || | \ \ / /  / \
-| |     / _ \ | |_| |\___ \| || |_ \ V /  / _ \
-| |___ / ___ \|  _  | ___) |__   _| | |  / ___ \
-|_____/_/   \_\_| |_||____/   |_|   |_| /_/   \_\
-
-                    by Lakshya
+BY LAkshya :)
