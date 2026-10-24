@@ -1,6 +1,6 @@
 
-# Expense Tracker
-# Features: Add expenses, view expenses, show total, and save expenses.
+import csv
+import math
 
 expenses = []
 
@@ -25,6 +25,10 @@ def add_expense():
         while True:
             try:
                 Amt = float(input("Enter amount: "))
+
+                if not math.isfinite(Amt):
+                    print("Error: Amount must be a finite number.")
+                    continue
 
                 if Amt < 0:
                     print("Error: Expense amount cannot be negative.")
@@ -71,48 +75,54 @@ def show_total():
 
 
 def save_expenses():
-    # Save the complete list instead of appending duplicate records.
-    import csv
+    try:
+        with open("expenses.txt", "w", newline="", encoding="utf-8") as file:
+            writer = csv.DictWriter(
+                file,
+                fieldnames=["category", "amount", "description"]
+            )
+            writer.writeheader()
+            writer.writerows(expenses)
 
-    with open("expenses.txt", "w", newline="", encoding="utf-8") as file:
-        writer = csv.DictWriter(
-            file,
-            fieldnames=["category", "amount", "description"]
-        )
-        writer.writeheader()
-        writer.writerows(expenses)
+        print("Expenses saved successfully!")
 
-    print("Expenses saved successfully!")
+    except OSError as error:
+        print(f"Error saving expenses: {error}")
 
 
 def load_expenses():
-    import csv
-
     try:
         with open("expenses.txt", "r", newline="", encoding="utf-8") as file:
             reader = csv.DictReader(file)
 
             for row in reader:
-                amount = float(row["amount"])
+                try:
+                    amount = float(row["amount"])
 
-                # Ignore invalid negative records in the saved file.
-                if amount < 0:
-                    continue
+                    if not math.isfinite(amount) or amount < 0:
+                        print("Skipping an invalid saved expense.")
+                        continue
 
-                expenses.append({
-                    "category": row["category"],
-                    "amount": amount,
-                    "description": row["description"]
-                })
+                    expenses.append({
+                        "category": row["category"],
+                        "amount": amount,
+                        "description": row["description"]
+                    })
+
+                except (ValueError, TypeError, KeyError):
+                    print("Skipping a corrupted expense record.")
 
     except FileNotFoundError:
         pass
-    except (ValueError, KeyError) as error:
-        print(f"Warning: Some saved data could not be loaded: {error}")
+
+    except OSError as error:
+        print(f"Error loading expenses: {error}")
 
 
 def exit_program():
-    confirm = input("Are you sure you want to exit? (y/n): ").strip().lower()
+    confirm = input(
+        "Are you sure you want to exit? (y/n): "
+    ).strip().lower()
 
     if confirm == "y":
         save_expenses()
@@ -123,7 +133,6 @@ def exit_program():
     return False
 
 
-# Load saved expenses when the program starts.
 load_expenses()
 
 while True:
@@ -136,6 +145,7 @@ while True:
 
     try:
         opt = int(input("Enter your choice (1-4): "))
+
     except ValueError:
         print("Error: Please enter a number from 1 to 4.")
         continue
